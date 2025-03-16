@@ -2,6 +2,7 @@ package pro.sky.telegrambot.model;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 public class NotificationTask {
@@ -72,5 +73,30 @@ public class NotificationTask {
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        NotificationTask that = (NotificationTask) o;
+        return Objects.equals(id, that.id) && Objects.equals(chatId, that.chatId) && Objects.equals(notificationText, that.notificationText) && Objects.equals(sendTime, that.sendTime) && Objects.equals(scheduledTime, that.scheduledTime) && Objects.equals(createdAt, that.createdAt);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, chatId, notificationText, sendTime, scheduledTime, createdAt);
+    }
+
+    @Override
+    public String toString() {
+        return "NotificationTask{" +
+                "id=" + id +
+                ", chatId=" + chatId +
+                ", notificationText='" + notificationText + '\'' +
+                ", sendTime=" + sendTime +
+                ", scheduledTime=" + scheduledTime +
+                ", createdAt=" + createdAt +
+                '}';
     }
 }
