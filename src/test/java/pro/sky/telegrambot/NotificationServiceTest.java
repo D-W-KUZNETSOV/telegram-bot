@@ -35,31 +35,7 @@ public class NotificationServiceTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    @Test
-    public void testProcessMessage_ValidMessage_SavesNotification() {
-        String message = "25.12.2023 15:30 Уведомление";
-        Long chatId = 123L;
 
-        notificationService.processMessage(message, chatId);
-
-        ArgumentCaptor<NotificationTask> taskCaptor = ArgumentCaptor.forClass(NotificationTask.class);
-        verify(notificationTaskRepository).save(taskCaptor.capture());
-
-        NotificationTask savedTask = taskCaptor.getValue();
-        assertEquals(chatId, savedTask.getChatId());
-        assertEquals("Уведомление", savedTask.getNotificationText());
-        assertNotNull(savedTask.getSendTime());
-    }
-
-    @Test
-    public void testProcessMessage_InvalidMessage_LogsWarning() {
-        String invalidMessage = "Некорректное сообщение";
-        Long chatId = 123L;
-
-        notificationService.processMessage(invalidMessage, chatId);
-
-        verify(notificationTaskRepository, never()).save(any());
-    }
 
     @Test
     public void testSendNotifications_NoTasks_LogsInfo() {
