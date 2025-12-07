@@ -1,40 +1,41 @@
 package pro.sky.telegrambot.service;
 
-import com.pengrad.telegrambot.TelegramBot;
-import com.pengrad.telegrambot.request.SendMessage;
-import com.pengrad.telegrambot.response.SendResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import pro.sky.telegrambot.message.MessageProcessor;
 import pro.sky.telegrambot.model.NotificationTask;
 import pro.sky.telegrambot.repozitory.NotificationTaskRepository;
 
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
 public class NotificationService {
     private final Logger logger = LoggerFactory.getLogger(NotificationService.class);
     private final NotificationTaskRepository notificationTaskRepository;
-    private final TelegramBot telegramBot;
-    private final MessageProcessor messageProcessor;
+    private final ReminderService reminderService;
+    private final NotificationSender notificationSender;
 
-    public NotificationService(NotificationTaskRepository notificationTaskRepository, TelegramBot telegramBot, MessageProcessor messageProcessor) {
+    @Autowired
+    public NotificationService(
+            NotificationTaskRepository notificationTaskRepository,
+            ReminderService reminderService,
+            NotificationSender notificationSender
+    ) {
         this.notificationTaskRepository = notificationTaskRepository;
-        this.telegramBot = telegramBot;
-        this.messageProcessor = messageProcessor;
+        this.reminderService = reminderService;
+        this.notificationSender = notificationSender;
     }
 
     public void processMessage(String message, Long chatId) {
-        messageProcessor.processMessage(message, chatId);
+        reminderService.processReminder(message, chatId);
     }
 
     @Scheduled(cron = "0 0/1 * * * *")
     public void sendNotifications() {
-        LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
+        LocalDateTime now = LocalDateTime.now();
         List<NotificationTask> tasks = notificationTaskRepository.findBySendTimeBefore(now);
 
         if (tasks.isEmpty()) {
@@ -43,22 +44,17 @@ public class NotificationService {
         }
 
         for (NotificationTask task : tasks) {
-            sendNotification(task);
-            notificationTaskRepository.delete(task);
-        }
-    }
+            try {
 
-    public void sendNotification(NotificationTask task) {
-        SendMessage message = new SendMessage(task.getChatId(), task.getNotificationText());
-        try {
-            SendResponse response = telegramBot.execute(message);
-            if (!response.isOk()) {
-                logger.error("Ошибка при отправке сообщения: {} {}", response.errorCode(), response.description());
-            } else {
-                logger.info("Уведомление отправлено: {}", task.getNotificationText());
+                notificationSender.sendMessage(task.getChatId(), "⏰ Напоминание: " + task.getNotificationText());
+                logger.info("✅ Отправлено: {}", task.getNotificationText());
+
+
+                notificationTaskRepository.delete(task);
+
+            } catch (Exception e) {
+                logger.error("❌ Ошибка отправки: {}", task.getNotificationText(), e);
             }
-        } catch (Exception e) {
-            logger.error("Ошибка при отправке уведомления", e);
         }
     }
 }

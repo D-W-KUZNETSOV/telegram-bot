@@ -15,16 +15,6 @@ public class NotificationTask {
     private String notificationText;
     private LocalDateTime sendTime;
 
-    @Column(name = "scheduled_time")
-    private LocalDateTime scheduledTime;
-
-    public LocalDateTime getScheduledTime() {
-        return scheduledTime;
-    }
-
-    public void setScheduledTime(LocalDateTime scheduledTime) {
-        this.scheduledTime = scheduledTime;
-    }
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
@@ -35,7 +25,7 @@ public class NotificationTask {
     private LocalDateTime createdAt;
 
     public NotificationTask() {
-        this.createdAt = LocalDateTime.now(); // Инициализация текущим временем
+        this.createdAt = LocalDateTime.now();
     }
 
     // Геттеры и сеттеры
@@ -80,12 +70,12 @@ public class NotificationTask {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         NotificationTask that = (NotificationTask) o;
-        return Objects.equals(id, that.id) && Objects.equals(chatId, that.chatId) && Objects.equals(notificationText, that.notificationText) && Objects.equals(sendTime, that.sendTime) && Objects.equals(scheduledTime, that.scheduledTime) && Objects.equals(createdAt, that.createdAt);
+        return Objects.equals(id, that.id) && Objects.equals(chatId, that.chatId) && Objects.equals(notificationText, that.notificationText) && Objects.equals(sendTime, that.sendTime)  && Objects.equals(createdAt, that.createdAt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, chatId, notificationText, sendTime, scheduledTime, createdAt);
+        return Objects.hash(id, chatId, notificationText, sendTime,  createdAt);
     }
 
     @Override
@@ -95,7 +85,7 @@ public class NotificationTask {
                 ", chatId=" + chatId +
                 ", notificationText='" + notificationText + '\'' +
                 ", sendTime=" + sendTime +
-                ", scheduledTime=" + scheduledTime +
+                ", scheduledTime=" +
                 ", createdAt=" + createdAt +
                 '}';
     }
