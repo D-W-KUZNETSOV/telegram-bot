@@ -14,8 +14,6 @@ public interface NotificationTaskRepository extends JpaRepository<NotificationTa
     @Query("SELECT nt FROM NotificationTask nt WHERE nt.sendTime = :currentTime")
     List<NotificationTask> findBySendTime(LocalDateTime currentTime);
 
-    List<NotificationTask> findByScheduledTime(LocalDateTime now);
-
     List<NotificationTask> findBySendTimeBefore(LocalDateTime now);
 
 }
